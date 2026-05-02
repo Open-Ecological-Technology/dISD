@@ -1,0 +1,194 @@
+@startuml course-object-flow
+!theme plain
+skinparam defaultFontName Monospaced
+
+skinparam activity {
+  BackgroundColor #f5f5f5
+  BorderColor     #333333
+  FontSize        12
+}
+
+skinparam note {
+  BackgroundColor #e3f2fd
+  BorderColor     #1565c0
+  FontSize        10
+}
+
+skinparam swimlane {
+  BorderColor    #555555
+  TitleFontSize  13
+  TitleFontStyle bold
+}
+
+title dISD Course — Full Object Flow\n(ADDIE phases as swimlanes; input/output pins declared on each action)
+
+'══════════════════════════════════════════════════════════════════
+' ANALYSIS
+'══════════════════════════════════════════════════════════════════
+
+|#dce8d4|Analysis|
+
+start
+
+:Analyze Needs;
+note right
+  <b>in:  CourseContext</b>
+  domainProblem : string
+  learnerRole   : string
+  iteration     : int
+  ....
+  <b>out: NeedsAnalysisArtifact</b>
+  gapStatement          : string
+  targetAudience        : Audience
+  performanceObjectives : string[]
+  constraints           : string[]
+end note
+
+'══════════════════════════════════════════════════════════════════
+' DESIGN
+'══════════════════════════════════════════════════════════════════
+
+|#dce4f5|Design|
+
+:Model the System;
+note right
+  <b>in:  NeedsAnalysisArtifact</b>
+  ....
+  <b>out: SystemModel</b>
+  entities   : Entity[]
+  relations  : Relation[]
+  boundaries : Boundary[]
+  pumlSource : string
+end note
+
+:Map Learning Object Dependencies;
+note right
+  <b>in:  SystemModel</b>
+  ....
+  <b>out: LearningObjectGraph</b>
+  nodes      : LearningObjectNode[]
+  edges      : Prerequisite[]
+  pumlSource : string
+end note
+
+:Specify Learning Objects;
+note right
+  <b>in:  LearningObjectGraph</b>
+  ....
+  <b>out: LearningObjectSpec[]</b>
+  id                : string
+  title             : string
+  objectives        : string[]
+  prerequisites     : string[]
+  artifactSchema    : string
+  estimatedDuration : int
+end note
+
+:Write Chai Specs;
+note right
+  <b>in:  LearningObjectSpec[]</b>
+  ....
+  <b>out: ChaiSpec[]</b>
+  moduleId     : string
+  specPath     : string
+  assertedPins : PinAssertion[]
+  runner       : "mocha"
+end note
+
+'══════════════════════════════════════════════════════════════════
+' DEVELOPMENT
+'══════════════════════════════════════════════════════════════════
+
+|#f5e6d4|Development|
+
+:Build Content Components;
+note right
+  <b>in:  LearningObjectSpec[], ChaiSpec[]</b>
+  ....
+  <b>out: ContentComponent[]</b>
+  id        : string
+  moduleId  : string
+  format    : "md" | "yaml" | "html"
+  version   : semver
+  changelog : string[]
+end note
+
+'══════════════════════════════════════════════════════════════════
+' IMPLEMENTATION
+' Split: ISD decision first, technical encoding second.
+'══════════════════════════════════════════════════════════════════
+
+|#f5d4d4|Implementation|
+
+:Specify Delivery;
+note right
+  <b>in:  ContentComponent[], ChaiSpec[]</b>
+  ....
+  <b>out: DeliverySpec</b>
+  deliveryMechanism   : "xapi" | "scorm" | "web"
+  sequencing          : SequencingRule[]
+  learnerArtifactSchema : string
+  feedbackRouting     : FeedbackRoute[]
+  evaluationTrigger   : EvaluationTrigger
+end note
+
+:Encode Delivery as Pipeline;
+note right
+  <b>in:  DeliverySpec</b>
+  ....
+  <b>out: PipelineConfig</b>
+  ciProvider : string
+  steps      : PipelineStep[]
+  triggers   : Trigger[]
+  yamlPath   : string
+end note
+
+:Deploy;
+note right
+  <b>in:  PipelineConfig</b>
+  ....
+  <b>out: DeployedCourse</b>
+  releaseTag   : semver
+  endpoint     : url
+  xapiEndpoint : url
+  deployedAt   : datetime
+end note
+
+'══════════════════════════════════════════════════════════════════
+' EVALUATION
+'══════════════════════════════════════════════════════════════════
+
+|#e8d4f5|Evaluation|
+
+:Collect Telemetry;
+note right
+  <b>in:  DeployedCourse</b>
+  ....
+  <b>out: EvaluationReport</b>
+  moduleId    : string
+  learnerId   : string
+  attemptId   : string
+  artifacts   : ArtifactResult[]
+  passRate    : float
+  weakModules : string[]
+  specResults : object
+end note
+
+:Update Backlog;
+note right
+  <b>in:  EvaluationReport</b>
+  ....
+  <b>out: BacklogDelta</b>
+  openIssues    : Issue[]
+  closedIssues  : Issue[]
+  nextIteration : int
+  trigger       : "release" | "patch" | "redesign"
+  ....
+  nextIteration == iteration + 1
+  BacklogDelta feeds CourseContext
+  on next iteration (loop to Analysis)
+end note
+
+stop
+
+@enduml
