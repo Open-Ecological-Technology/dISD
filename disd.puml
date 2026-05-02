@@ -1,4 +1,4 @@
-@startuml course-object-flow
+@startuml disd-diagram
 !theme plain
 skinparam defaultFontName Monospaced
 
