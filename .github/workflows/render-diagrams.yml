@@ -2,17 +2,19 @@ name: Generate PlantUML
 on:
   push:
     paths:
-      - '**.puml' # Only runs when you change a .puml file
+      - '**.puml' # Triggers on any .puml file in any folder, including root
 jobs:
   render:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Crucial: gives the action permission to push the SVG back
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # Essential for accessing your files
+        uses: actions/checkout@v4
 
       - name: Generate SVG
         uses: grassedge/generate-plantuml-action@v1.5
         with:
-          path: diagrams/ # Folder where your .puml files live
+          path: . # Changing this to "." makes it scan the root
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to push images back
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
