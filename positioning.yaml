@@ -1,0 +1,7 @@
+positioning:
+  for: 'open hardware practitioners' 
+  who: 'want their designs to be reproducible by strangers around the world'
+  product: 'dISD' 
+  is: 'the documentation methodology that treats every hardware task as a teachable unit'
+  unlike: 'ad-hoc README-driven documentation'
+  reason-to-believe: 'because it applies the proven knowledge-transfer principles of Instructional Systems Design to distributed manufacturing'
